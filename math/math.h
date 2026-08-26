@@ -370,7 +370,7 @@ enum drawMode : uint8_t {
 	dyn_lines = 5,
 	dyn_triangles = 6
 };
-
+#include <bitset>
 struct MATH_API object {
 	static unsigned now_id;
 

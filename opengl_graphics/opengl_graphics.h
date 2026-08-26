@@ -182,6 +182,7 @@ private:
 	static int point2;
 	static int point3;
 	static unsigned selected_id;
+	static unsigned highlight_id;
 	static unsigned super_selected_id;
 	static bool highlight_selected;
 	static Camera* camera;
@@ -197,7 +198,9 @@ public:
 	static void setCameraPtr(Camera* camera);
 	static void reserveObjects(unsigned);
 	static unsigned getSelectedID();
+	static unsigned getHighlightID();
 	static unsigned getSuperSelectedID();
+	static void setHighlightID(unsigned);
 	static void setSuperSelectedID(unsigned);
 	static void highlightSelected(bool = true);
 	static object* getSelectedObject();

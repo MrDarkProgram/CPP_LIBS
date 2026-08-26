@@ -69,6 +69,24 @@ trianglesS generateSphere(unsigned subdivides) {
 	return ts;
 }
 
+trianglesS generateSphereAndRing(unsigned subdivides, float r1, float r2) {
+	trianglesS ts = generateSphere(subdivides);
+	if (r1 != 0 && r2 != 0) {
+		float angle = 6.2832 / subdivides / 12;
+		for (int i = 0; i < subdivides * 12; i++) {
+			vec3 pos1 = { r1 * cos(i * angle), 0, r1 * sin(i * angle) };
+			vec3 pos2 = { r2 * cos(i * angle), 0, r2 * sin(i * angle) };
+			vec3 pos3 = { r1 * cos((i + 1) * angle), 0, r1 * sin((i + 1) * angle) };
+			vec3 pos4 = { r2 * cos((i + 1) * angle), 0, r2 * sin((i + 1) * angle) };
+			ts.push_back({ pos1, pos2, pos3 });
+			ts.push_back({ pos3, pos2, pos4 });
+			ts.push_back({ pos1, pos3, pos2 });
+			ts.push_back({ pos2, pos3, pos4 });
+		}
+	}
+	return ts;
+}
+
 vertexes drawEllipse(float a, float b, unsigned lines_count) {
 	vertexes verts = {};
 

@@ -56,7 +56,7 @@ void GUIText::genVerts()
 	for (char c : text) {
 		if (c == '\n') {
 			j = 0;
-			k--;
+			k -= 18.0 / 16;
 		}
 		else if (charTable.contains(c)) {
 			vec2 charPos = charTable.at(c);
@@ -76,7 +76,7 @@ void GUIText::genVerts()
 	
 }
 
-GUIText::GUIText(vec2 pos, float size, Texture* texturePtr, std::string text, bool dyn) : GUIElement(pos, {size, size * 18 / 16}, texturePtr, {}, {}, dyn, false)
+GUIText::GUIText(vec2 pos, float size, Texture* texturePtr, std::string text, bool dyn) : GUIElement(pos, {size * 12 / 16, size}, texturePtr, {}, {}, dyn, false)
 {
 	this->text = text;
 	genVerts();

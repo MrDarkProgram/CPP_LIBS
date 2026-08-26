@@ -113,7 +113,7 @@ void moveObject(PlanetData& data, double global_t) {
 void createObject(PlanetData& data) {
 	data.planet = UniversalRender2::addObject({});
 	data.planet->scl = { data.EquatorialRadius * 2, data.PolarRadius * 2, data.EquatorialRadius * 2 };
-	data.planet->addTriangles(generateSphere(2), { data.ColorR, data.ColorG, data.ColorB, 1 }, dyn_triangles);
+	data.planet->addTriangles(generateSphereAndRing(2, data.RingRadius1, data.RingRadius2), { data.ColorR, data.ColorG, data.ColorB, 1 }, dyn_triangles);
 	data.calculateQM();
 
 	data.orbit = UniversalRender2::addObject({});

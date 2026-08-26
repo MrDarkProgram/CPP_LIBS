@@ -5,15 +5,19 @@ struct Physcraft {
 	PlanetData& star;
 	PlanetData& planet1;
 	PlanetData& planet2;
-	object* craft;
-	object* trajectory;
+	static object* craft;
+	static object* trajectory;
 	vec3 velocity{};
 	vec3 lastPos{};
-	Physcraft(Planets& planets, PlanetData& star, PlanetData& planet1, PlanetData& planet2) : planets(planets), star(star), planet1(planet1), planet2(planet2) {
+	static void InitModels() {
 		craft = UniversalRender2::addObject({});
+		trajectory = UniversalRender2::addObject({});
+	}
+	Physcraft(Planets& planets, PlanetData& star, PlanetData& planet1, PlanetData& planet2) : planets(planets), star(star), planet1(planet1), planet2(planet2) {
+		
 		craft->addTriangles(generateSphere(0), { 1, 1, 1, 1 }, drawMode::dyn_triangles);
 		craft->scl = { 1, 10, 1 };
-		trajectory = UniversalRender2::addObject({});
+		trajectory->vert.clear();
 		trajectory->color = { 1, 1, 1, 1 };
 		trajectory->mode = dyn_lines;
 	}
@@ -29,8 +33,8 @@ struct Physcraft {
 			resultAcceleration +=
 				norm(data.planet->pos - craft->pos) * G * data.Mass / (data.planet->pos - craft->pos).length_squared() * planets.GlobalSemiMajorAxisModifier * planets.GlobalSemiMajorAxisModifier;
 		}
-		velocity += resultAcceleration * dt * 0.864;
-		craft->pos += velocity * dt * 0.000864;
+		velocity += resultAcceleration * dt * 0.0864;
+		craft->pos += velocity * dt * 0.0000864;
 
 		if ((lastPos - craft->pos).length() > 1) {
 			trajectory->vert.push_back({ lastPos });
@@ -39,20 +43,26 @@ struct Physcraft {
 		}
 	}
 };
+object* Physcraft::craft{};
+object* Physcraft::trajectory{};
 
 struct Spacecraft {
 	Planets& planets;
 	PlanetData& star;
 	PlanetData& planet1;
 	PlanetData& planet2;
-	PlanetData transOrbit{};
-	PlanetData secondOrbit{};
+	static PlanetData transOrbit;
+	static PlanetData secondOrbit;
 	object phantom{};
 	Physcraft physcraft;
 	double maneuver1Time{};
 	double maneuver2Time{};
 	bool wasManeuver1{};
 	bool wasManeuver2{};
+	static void InitModels() {
+		transOrbit.orbit = UniversalRender2::addObject({});
+		secondOrbit.orbit = UniversalRender2::addObject({});
+	}
 	Spacecraft(Planets& planets, PlanetData& star, PlanetData& planet1, PlanetData& planet2, double global_t) :
 		planets(planets), star(star), planet1(planet1), planet2(planet2), physcraft(planets, star, planet1, planet2) {
 
@@ -61,7 +71,6 @@ struct Spacecraft {
 		transOrbit.ColorG = 0.5;
 		transOrbit.ColorB = 0.5;
 		calculateHomanOrbit(transOrbit, planets, star, planet1, planet2, global_t);
-		transOrbit.orbit = UniversalRender2::addObject({});
 		transOrbit.orbit->mode = lines;
 		if (planet2.SemiMajorAxis > planet1.SemiMajorAxis) transOrbit.orbit->vert = drawOrbit05(transOrbit);
 		else transOrbit.orbit->vert = drawOrbit50(transOrbit);
@@ -78,17 +87,14 @@ struct Spacecraft {
 		secondOrbit.ArgumentOfPeriapsis = planet2.ArgumentOfPeriapsis + planet2.LongitudeOfTheAscendingNode - planet1.LongitudeOfTheAscendingNode;
 		secondOrbit.MeanAnomaly = planet2.MeanAnomaly;
 		secondOrbit.calculateQM();
-		secondOrbit.orbit = UniversalRender2::addObject({});
 		secondOrbit.orbit->mode = lines;
 		secondOrbit.orbit->vert = drawOrbit(secondOrbit);
 
 		UniversalRender2::setRewrite();
 	}
 	~Spacecraft() {
-		UniversalRender2::removeObject(transOrbit.orbit);
-		UniversalRender2::removeObject(secondOrbit.orbit);
 	}
-	void update(double global_t, float t) {
+	void update(double global_t, float t, int substep) {
 		if (global_t >= maneuver2Time) {
 			if (!wasManeuver2) {
 				transOrbit.SemiMajorAxis = planet2.SemiMajorAxis;
@@ -102,7 +108,7 @@ struct Spacecraft {
 			moveObject(transOrbit, global_t);
 			physcraft.setPositionAndVelocity(phantom.pos, {});
 		}
-		if (global_t >= maneuver1Time) {
+		else if (global_t >= maneuver1Time) {
 			moveObject(transOrbit, global_t - maneuver1Time);
 			if (!wasManeuver1) {
 				float trueAnomaly = 0;
@@ -110,7 +116,8 @@ struct Spacecraft {
 				physcraft.setPositionAndVelocity(transOrbit.planet->pos, norm(transOrbit.planet->pos - transOrbit.lastPos) * calculateV(planets, star, transOrbit, trueAnomaly));
 				wasManeuver1 = true;
 			}
-			physcraft.update(t)æ
+			//for (int i = 0; i < substep; i++) physcraft.update(t)æ
+			physcraft.update(t * substep)æ
 		}
 		else {
 			moveObject(transOrbit, global_t - maneuver1Time);
@@ -119,3 +126,5 @@ struct Spacecraft {
 		
 	}
 };
+PlanetData Spacecraft::transOrbit{};
+PlanetData Spacecraft::secondOrbit{};

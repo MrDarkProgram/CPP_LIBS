@@ -14,6 +14,7 @@ int UniversalRender2::point1;
 int UniversalRender2::point2;
 int UniversalRender2::point3;
 unsigned UniversalRender2::selected_id;
+unsigned UniversalRender2::highlight_id;
 unsigned UniversalRender2::super_selected_id;
 bool UniversalRender2::highlight_selected;
 Camera* UniversalRender2::camera;
@@ -80,7 +81,7 @@ std::vector<float> UniversalRender2::collectObjectsToData(drawMode mode, bool al
 					color.y = 1;
 					color.z /= 2;
 				}
-				else if (highlight_selected && selected_id == object.id) {
+				else if ((highlight_selected && selected_id == object.id) || highlight_id == object.id) {
 					color.x /= 2;
 					color.y = 1;
 					color.z /= 2;
@@ -216,9 +217,19 @@ unsigned UniversalRender2::getSelectedID()
 	return selected_id;
 }
 
+unsigned UniversalRender2::getHighlightID()
+{
+	return highlight_id;
+}
+
 unsigned UniversalRender2::getSuperSelectedID()
 {
 	return super_selected_id;
+}
+
+void UniversalRender2::setHighlightID(unsigned u)
+{
+	highlight_id = u;
 }
 
 void UniversalRender2::setSuperSelectedID(unsigned u)

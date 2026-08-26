@@ -45,6 +45,10 @@ struct PlanetData
 	float ColorG;
 	// Синяя составляющая цвета модели [0;1]
 	float ColorB;
+	// Начальный коэф. радиуса колец
+	float RingRadius1;
+	// Конечный коэф. радиуса колец
+	float RingRadius2;
 
 	// Вспомогательные переменные
 	
@@ -78,7 +82,6 @@ struct PlanetData
 struct Planets : public std::vector<PlanetData> {
 	float GlobalRadiusModifier;
 	float GlobalSemiMajorAxisModifier;
-	float GlobalTimeModifier;
 };
 
 void generateObjects(const char* path, Planets& objects) {
@@ -88,11 +91,11 @@ void generateObjects(const char* path, Planets& objects) {
 
 	objects.GlobalRadiusModifier = data["GlobalRadiusModifier"];
 	objects.GlobalSemiMajorAxisModifier = data["GlobalSemiMajorAxisModifier"];
-	objects.GlobalTimeModifier = data["GlobalTimeModifier"];
 	objects.reserve(planets.size());
 	for (int i = 0; i < planets.size(); i++) {
 		objects.push_back({});
-		objects[i].RadiusModifier = planets[i]["RadiusModifier"];
+		if (planets[i].contains("RadiusModifier")) objects[i].RadiusModifier = planets[i]["RadiusModifier"];
+		else objects[i].RadiusModifier = 1;
 
 		objects[i].Name = planets[i]["Name"];
 		objects[i].SemiMajorAxis = planets[i]["SemiMajorAxis"] * objects.GlobalSemiMajorAxisModifier;
@@ -110,5 +113,9 @@ void generateObjects(const char* path, Planets& objects) {
 		objects[i].ColorR = planets[i]["colorR"];
 		objects[i].ColorG = planets[i]["colorG"];
 		objects[i].ColorB = planets[i]["colorB"];
+		if (planets[i].contains("RingRadius1") && planets[i].contains("RingRadius2")) {
+			objects[i].RingRadius1 = planets[i]["RingRadius1"];
+			objects[i].RingRadius2 = planets[i]["RingRadius2"];
+		}
 	}
 }

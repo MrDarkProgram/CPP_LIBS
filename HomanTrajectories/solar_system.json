@@ -1,7 +1,6 @@
 {
 	"GlobalRadiusModifier": 0.5,
 	"GlobalSemiMajorAxisModifier": 0.001,
-	"GlobalTimeModifier": 10,
 	"planets": [
 		{
 			"Name": "Sun",
@@ -36,7 +35,6 @@
 			"Mass": 3.33022,
 			"SiderealRotationPeriod": 58.646,
 			"AxialTilt": 0.035167,
-			"RadiusModifier": 1,
 			"colorR": 0.7,
 			"colorG": 0.7,
 			"colorB": 0.7
@@ -55,7 +53,6 @@
 			"Mass": 48.675,
 			"SiderealRotationPeriod": 243.023,
 			"AxialTilt": 177.36,
-			"RadiusModifier": 1,
 			"colorR": 0.8,
 			"colorG": 0.8,
 			"colorB": 0.7
@@ -74,7 +71,6 @@
 			"Mass": 48.675,
 			"SiderealRotationPeriod": 0.99726968,
 			"AxialTilt": 23.439167,
-			"RadiusModifier": 1,
 			"colorR": 0.2,
 			"colorG": 0.5,
 			"colorB": 0.8
@@ -93,7 +89,6 @@
 			"Mass": 6.4171,
 			"SiderealRotationPeriod": 1.0259,
 			"AxialTilt": 25.1919,
-			"RadiusModifier": 1,
 			"colorR": 0.8,
 			"colorG": 0.6,
 			"colorB": 0.4
@@ -134,7 +129,9 @@
 			"RadiusModifier": 0.25,
 			"colorR": 0.8,
 			"colorG": 0.8,
-			"colorB": 0.75
+			"colorB": 0.75,
+			"RingRadius1": 1.2,
+			"RingRadius2": 2
 		},
 		{
 			"Name": "Uranus",
@@ -150,7 +147,6 @@
 			"Mass": 868.13,
 			"SiderealRotationPeriod": 0.71833,
 			"AxialTilt": 97.77,
-			"RadiusModifier": 1,
 			"colorR": 0.7,
 			"colorG": 0.85,
 			"colorB": 0.9
@@ -169,7 +165,6 @@
 			"Mass": 1024.09,
 			"SiderealRotationPeriod": 0.6653,
 			"AxialTilt": 28.32,
-			"RadiusModifier": 1,
 			"colorR": 0.45,
 			"colorG": 0.6,
 			"colorB": 0.9
