@@ -100,15 +100,24 @@ struct Spacecraft {
 	void update(double global_t, float t, int substep) {
 		if (global_t >= maneuver2Time) {
 			if (!wasManeuver2) {
+				if (!calculateTimeToManeuver) {
+					float a2 = calculateOffsetAbsoluteF(planet2, global_t);
+					float aO = calculateOffsetAbsoluteF(transOrbit, global_t - maneuver1Time);
+					transOrbit.MeanAnomaly = planet2.MeanAnomaly - aO + a2;
+				}
+				std::cout << normalizeT(calculateOffsetAbsoluteF(transOrbit, global_t)) - planet2.ArgumentOfPeriapsis - planet2.LongitudeOfTheAscendingNode << '\n';
+				std::cout << normalizeT(calculateOffsetAbsoluteF(transOrbit, global_t - maneuver1Time)) << '\n';
+				std::cout << normalizeT(calculateF(transOrbit, global_t - maneuver1Time) + transOrbit.ArgumentOfPeriapsis + transOrbit.LongitudeOfTheAscendingNode) << '\n';
 				transOrbit.SemiMajorAxis = planet2.SemiMajorAxis;
 				transOrbit.Eccentricity = planet2.Eccentricity;
 				transOrbit.ArgumentOfPeriapsis = planet2.ArgumentOfPeriapsis + planet2.LongitudeOfTheAscendingNode - planet1.LongitudeOfTheAscendingNode;
-				transOrbit.MeanAnomaly = planet2.MeanAnomaly;
+				if (calculateTimeToManeuver) transOrbit.MeanAnomaly = planet2.MeanAnomaly;
 				transOrbit.SiderealOrbitalPeriod = planet2.SiderealOrbitalPeriod;
 				transOrbit.calculateQM();
-				wasManeuver2 = false;
+				wasManeuver2 = true;
 			}
-			moveObject(transOrbit, global_t);
+			if (!calculateTimeToManeuver) moveObject(transOrbit, global_t - wasManeuver2);
+			else moveObject(transOrbit, global_t);
 			physcraft.setPositionAndVelocity(phantom.pos, {});
 		}
 		else if (global_t >= maneuver1Time) {

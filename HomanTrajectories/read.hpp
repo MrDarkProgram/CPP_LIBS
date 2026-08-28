@@ -140,7 +140,8 @@ float cameraMoveSpeed = 100;
 float cameraSens = 150;
 float cameraFov = 90;
 std::string starSystemPath = "solar_system.json";
-bool considePlanet2 = false;
+bool considePlanet2 = true;
+bool calculateTimeToManeuver = true;
 
 int ReadSettings() {
 	std::fstream f("settings.json");
@@ -157,6 +158,7 @@ int ReadSettings() {
 		cameraFov = data["CameraFov"];
 		starSystemPath = data["StarSystemPath"];
 		considePlanet2 = data["ConsiderPlanet2"];
+		calculateTimeToManeuver = data["CalculateTimeToManeuver"];
 	}
 	catch (const std::exception&)
 	{

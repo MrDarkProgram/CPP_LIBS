@@ -4,5 +4,6 @@
 	"CameraSens": 150,
 	"CameraFov": 90,
 	"StarSystemPath": "solar_system.json",
-	"ConsiderPlanet2": false
+	"ConsiderPlanet2": true,
+	"CalculateTimeToManeuver": true
 }

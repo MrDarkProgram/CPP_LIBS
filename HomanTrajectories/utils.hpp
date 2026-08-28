@@ -131,7 +131,8 @@ void calculateHomanOrbit(PlanetData& data, Planets& planets, PlanetData& star, P
 	if (&data1 == 0 || &data2 == 0 || data1.SiderealOrbitalPeriod == 0 || data2.SiderealOrbitalPeriod == 0) return;
 	float t{};
 	T = 0;
-	for (int i = 0; i < 200; i++) {
+	int n = calculateTimeToManeuver ? 200 : 2;
+	for (int i = 0; i < n; i++) {
 		float a = data1.SemiMajorAxis;
 		float e = data1.Eccentricity;
 		float b = sqrt((1 - e * e) * a * a);
@@ -172,8 +173,11 @@ void calculateHomanOrbit(PlanetData& data, Planets& planets, PlanetData& star, P
 		//if(a2 > a1) t = normalizeTPlus(AO - A2);
 		//else t = normalizeTPlus(A2 - AO);
 		if (t < 0.001) return;
-		if (a2 > a1) T += std::min(data1.SiderealOrbitalPeriod, data2.SiderealOrbitalPeriod) * 1000 * t / 6.2830 / 2;
-		else T += std::min(data1.SiderealOrbitalPeriod, data2.SiderealOrbitalPeriod) * 1000 * (1 - t / 6.2830) / 2;
+		if (calculateTimeToManeuver) {
+			if (a2 > a1) T += std::min(data1.SiderealOrbitalPeriod, data2.SiderealOrbitalPeriod) * 1000 * t / 6.2830 / 2;
+			else T += std::min(data1.SiderealOrbitalPeriod, data2.SiderealOrbitalPeriod) * 1000 * (1 - t / 6.2830) / 2;
+		}
+		else T += 1000;
 		//std::cout << "итерация " << i << ":\n\tразность: " << t << " рад.\n\tвремя до маневра: " << int(T / 1000) << "\n";
 	}
 }
