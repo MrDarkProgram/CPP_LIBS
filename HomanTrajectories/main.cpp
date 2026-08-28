@@ -1,23 +1,23 @@
 #include "main.h"
 
-// + #1   починить подсвечивающийся текст
-// + #1.1 починить вылет проги когда отменяется выбор
-// + #2   добавить кольца планетам гигантам (а ещё можно добавить пояс астероидов)
-// + #3   добавить шкалу ускорений (чтоб можно было выбирать на сколько быстро ускорять)
+// O #1   починить подсвечивающийся текст
+// O #1.1 починить вылет проги когда отменяется выбор
+// O #2   добавить кольца планетам гигантам (а ещё можно добавить пояс астероидов)
+// O #3   добавить шкалу ускорений (чтоб можно было выбирать на сколько быстро ускорять)
 //   #4   написать 100500 геттеров и сеттеров в плэнетдата (возможно)
-//   #5   написать плашечку "сделал Коростов Иван, ссылка на гитхаб и т.п., Тихорецк 2026"
+// + #5   написать плашечку "сделал Коростов Иван, ссылка на гитхаб и т.п., Тихорецк 2026"
 //   #6   убрать предупреждение с проверками ссылок на 0 (сделать всё по человечески) 
-// + #7   починить вылет проги при попытке создать 2й маневр
+// O #7   починить вылет проги при попытке создать 2й маневр
 //   #8   убрать костыль из spaceraft
-// + #9   убрать возможность отматывать время назад во время физической симуляции
-//   #10  добавить галочку включения и выключения учитывания массы 2го тела
-// + #11  добавить название окна
-//   #12  убрать консоль при открыти программы
-//   #13  добавить поле для ввода названия файла звездной системы
-// + #14  убрать из файла системы модификатор времени
-// + #15  убрать возможность выбрать солнце
-//   #16  добавить файл настроек
-//   #17  добавить проверки на неправельно загруженный файл системы и файла настроек
+// O #9   убрать возможность отматывать время назад во время физической симуляции
+// + #10  добавить галочку включения и выключения учитывания массы 2го тела
+// O #11  добавить название окна
+// + #12  убрать консоль при открыти программы
+// + #13  добавить поле для ввода названия файла звездной системы
+// O #14  убрать из файла системы модификатор времени
+// O #15  убрать возможность выбрать солнце
+// + #16  добавить файл настроек
+// + #17  добавить проверки на неправельно загруженный файл системы и файла настроек
 //   #18  utils.hpp 128 навести порядок
 //   #19  в целом везде навести порядок
 
@@ -31,11 +31,14 @@ GUIElement* timeModeLabel;
 GUIText* timeLabel;
 GUIText* maneuverLabel;
 GUIText* infoLabel;
+GUIText* waterLabel;
+GUIText* tipsLabel;
 Spacecraft* HohmannOrbit;
 float globalTimeModifier = 1;
 float globalTimeModifierIndicator;
 float globalTimeModifierIndicatorNeed;
-constexpr int GTMI_substep = 50;
+unsigned GTMI_substep = 50;
+bool showTips;
 
 void SmoothTimer() {
 	if (globalTimeModifierIndicator != globalTimeModifierIndicatorNeed) {
@@ -78,7 +81,7 @@ void m(int button, int action) {
 				HohmannOrbit = new Spacecraft(planets, planets[0],
 					*getPlanetDataByID(UniversalRender2::getSuperSelectedID()),
 					*getPlanetDataByID(UniversalRender2::getHighlightID()),
-					getRealTime());
+					getRealTime(), considePlanet2);
 				UniversalRender2::setRewrite();
 				UniversalRender2::setSuperSelectedID(0);
 			}
@@ -127,8 +130,26 @@ void k(int key, int scan_code, int action, int mode) {
 	else if(!stop_time_bool && key == KEY_C && action == 1 ) {
 		globalTimeModifierIndicatorNeed+= GTMI_substep;
 	}
-	else if (!stop_time_bool && key == KEY_Z && action == 1 && globalTimeModifierIndicatorNeed >= 0) {
+	else if (!stop_time_bool && key == KEY_Z && action == 1 && globalTimeModifierIndicatorNeed > 0) {
 		globalTimeModifierIndicatorNeed-= GTMI_substep;
+	}
+	if (key == KEY_F1 && action == 1) {
+		if (!showTips) {
+			showTips = true;
+			tipsLabel->setText( "WASD - движение в плоскости орбит\n"
+								"Shift/Space - движение по вертикали\n"
+								"Ctrl - ускоренное движение\n"
+								"ПКМ - повернуть камеру\n"
+								"ЛКМ - выбрать объект\n"
+								"С - увеличить скорость хода модели\n"
+								"Z - уменьшить скорость хода модели\n"
+								"X - остановить проигрывание модели\n"
+			);
+		}
+		else {
+			showTips = false;
+			tipsLabel->setText("                     F1 - подсказки");
+		}
 	}
 }
 
@@ -138,8 +159,8 @@ void u(float t) {
 	if (stop_time_bool) {
 		stop_time = clock() - stop_time_start;
 		if (HohmannOrbit == 0 ||  HohmannOrbit != 0 && !(getRealTime() > HohmannOrbit->maneuver1Time && getRealTime() < HohmannOrbit->maneuver2Time)) {
-			if (CameraMoveFixedUp::isKeyPressed(KEY_C)) stop_time_start += 10 * t;
-			if (CameraMoveFixedUp::isKeyPressed(KEY_Z)) stop_time_start -= 10 * t;
+			if (CameraMoveFixedUp::isKeyPressed(KEY_C)) stop_time_start += 16 * t;
+			if (CameraMoveFixedUp::isKeyPressed(KEY_Z)) stop_time_start -= 16 * t;
 		}
 	}
 	else realTimeUpdate(t);
@@ -173,14 +194,13 @@ a:;
 	}
 	else 
 		for (int i = 0; i < planets.size(); i++) {
-			if (planets[i].planet->id == id && last_id != id) {
+			if (planets[i].planet->id == id) {
 				last_id = id;
 				infoLabel->setText(
-					std::string() +
-					"Имя: " + planets[i].Name + "\n" +
-					//"V:  " + std::to_string(calculateVByTime(planets, planets[0], planets[i], getRealTime())) + "\n" +
-					//"T:  " + std::to_string(calculateT(planets, planets[0], planets[i])) + "\n" +
-					"");
+					"Имя: " + planets[i].Name + "\n"
+					"Выберите вторую планету для\n"
+					"создания траектории Гомана"
+				);
 			}
 		}
 
@@ -192,12 +212,11 @@ a:;
 void init() {
 	Window::create(1600, 900, "HohmannTrajectories");
 	Window::setSkyColor({ 0, 0, 0, 1 });
-	Window::addUpdateEvent(u);
 	Window::setVSync(1);
 	UniversalRender2::create();
-	//UniversalRender2::highlightSelected();
-	//ConsoleFPS::create();
 	setlocale(LC_ALL, "");
+
+	ReadSettings();
 }
 
 void scene() {
@@ -214,21 +233,32 @@ void scene() {
 	};
 	UniversalRender2::addObject(basis);
 
+	// загрузка планет
+	int status = generateObjects(starSystemPath.c_str(), planets);
 	// GUI
 	static Texture t0("textureMap.png", 0);
 	static Texture t1("font.png", 1);
 	// иконка течения времени
-	timeModeLabel = new GUIElement({ 10, 10 }, { 50, 50 }, &t0, { 0, 0 }, {16, 16}, true);
+	timeModeLabel = new GUIElement({ 10, 10 }, { textHeight * 2, textHeight * 2 }, &t0, { 0, 0 }, {16, 16}, true, true, leftUp);
 	// информация о времени
-	timeLabel = new GUIText({ 10, 70 }, 20, &t1, "", true);
+	if (status != 0) {
+		if(status == 1) timeLabel = new GUIText({ 10, textHeight * 2 + 20 }, textHeight, &t1, "Файл с солнечной системой не найдет!", true, leftUp);
+		if(status == 2) timeLabel = new GUIText({ 10, textHeight * 2 + 20 }, textHeight, &t1, "Файл с солнечной системой поврежден!", true, leftUp);
+		timeLabel->getObjectPtr()->color = { 1, 0, 0, 1 };
+	}
+	else timeLabel = new GUIText({ 10, textHeight * 2 + 20 }, textHeight, &t1, "", true, leftUp);
 	// информация об манёвре
-	maneuverLabel = new GUIText({ 10, 70 + 22.5 * 2 }, 20, &t1, "", true);
+	maneuverLabel = new GUIText({ 10, textHeight * 2 + 20 + textHeight * 1.125f * 2 }, textHeight, &t1, "", true, leftUp);
 	// информация об выбранном объекте
-	infoLabel = new GUIText({ 10, 70 + 22.5 * 4 }, 20, &t1, "", true);
+	infoLabel = new GUIText({ 10, textHeight * 2 + 20 + textHeight * 1.125f * 4 }, textHeight, &t1, "", true, leftUp);
+	// сделал я
+	waterLabel = new GUIText({ 5, - 5 - 18 * 4 }, 16, &t1, "Сделал Коростов Иван Игоревич\ngithub.com/MrDarkProgram\ngithub.com/MrProgrammistus\nТихорецк 2026", false, leftDown);
+	waterLabel->getObjectPtr()->color = {0.35, 0.35, 0.35, 0.35};
+	// подсказки
+	tipsLabel = new GUIText({ - 10 - textHeight * 0.75f * 35, 10 }, textHeight, &t1, "                     F1 - подсказки", true, rightUp);
 
 	// рисуем планеты
-	generateObjects("solar_system.json", planets);
-	for (PlanetData& d : planets) createObject(d);
+	if (status == 0) for (PlanetData& d : planets) createObject(d);
 
 	Spacecraft::InitModels();
 	Physcraft::InitModels();
@@ -237,30 +267,28 @@ void scene() {
 	camera.setPos({ 0, 100, 200 });
 	camera.setForward({0, 0, -1});
 	camera.setFarFront(100000);
+	camera.setFov(cameraFov * 1.5707 / 90);
 	UniversalRender2::setCameraPtr(&camera);
 	CameraMoveFixedUp::setYRotDeg(270);
-	CameraMoveFixedUp::create(&camera, false, 0.1, 0.15, true, false);
+	CameraMoveFixedUp::create(&camera, false, cameraMoveSpeed / 1000, cameraSens / 1000, true, false);
 	CameraMoveFixedUp::addKeyEvent(k);
 	CameraMoveFixedUp::addMouseEvent(m);
 
-	// =================
-
-	//physcraft = new Physcraft(planets, planets[0], planets[0], planets[0]);
-	//physcraft->setPositionAndVelocity({160, 0, 0}, {0, 0, -28.8});
-	//physCraft->setPositionAndVelocity({190, 0, 0}, {0, 0, -26.43});
+	if(status == 0) Window::addUpdateEvent(u);
 }
 
 void runAndFree() {
+	start_time = clock();
 	Window::run();
 	UniversalRender2::free();
-	//delete timeModeLabel;
 }
 
 int main() {
-
 	init();
 	scene();
-	start_time = clock();
 	runAndFree();
 	return 0;
+}
+int WinMain() {
+	return main();
 }

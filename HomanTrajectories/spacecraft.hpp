@@ -9,17 +9,20 @@ struct Physcraft {
 	static object* trajectory;
 	vec3 velocity{};
 	vec3 lastPos{};
+	bool considePlanet2;
 	static void InitModels() {
 		craft = UniversalRender2::addObject({});
 		trajectory = UniversalRender2::addObject({});
 	}
-	Physcraft(Planets& planets, PlanetData& star, PlanetData& planet1, PlanetData& planet2) : planets(planets), star(star), planet1(planet1), planet2(planet2) {
-		
+	Physcraft(Planets& planets, PlanetData& star, PlanetData& planet1, PlanetData& planet2, bool considePlanet2) : 
+		planets(planets), star(star), planet1(planet1), planet2(planet2) {
+
 		craft->addTriangles(generateSphere(0), { 1, 1, 1, 1 }, drawMode::dyn_triangles);
 		craft->scl = { 1, 10, 1 };
 		trajectory->vert.clear();
 		trajectory->color = { 1, 1, 1, 1 };
 		trajectory->mode = dyn_lines;
+		this->considePlanet2 = considePlanet2;
 	}
 	void setPositionAndVelocity(vec3 pos, vec3 vel) {
 		craft->pos = pos;
@@ -29,7 +32,7 @@ struct Physcraft {
 	void update(float dt) {
 		vec3 resultAcceleration{};
 		for (PlanetData& data : planets) {
-			if (data.planet == planet1.planet) continue;
+			if (data.planet == planet1.planet || (!considePlanet2 && data.planet == planet2.planet)) continue;
 			resultAcceleration +=
 				norm(data.planet->pos - craft->pos) * G * data.Mass / (data.planet->pos - craft->pos).length_squared() * planets.GlobalSemiMajorAxisModifier * planets.GlobalSemiMajorAxisModifier;
 		}
@@ -63,8 +66,8 @@ struct Spacecraft {
 		transOrbit.orbit = UniversalRender2::addObject({});
 		secondOrbit.orbit = UniversalRender2::addObject({});
 	}
-	Spacecraft(Planets& planets, PlanetData& star, PlanetData& planet1, PlanetData& planet2, double global_t) :
-		planets(planets), star(star), planet1(planet1), planet2(planet2), physcraft(planets, star, planet1, planet2) {
+	Spacecraft(Planets& planets, PlanetData& star, PlanetData& planet1, PlanetData& planet2, double global_t, bool considePlanet2) :
+		planets(planets), star(star), planet1(planet1), planet2(planet2), physcraft(planets, star, planet1, planet2, considePlanet2) {
 
 		transOrbit.planet = &phantom;
 		transOrbit.ColorR = 0.5;
@@ -116,7 +119,6 @@ struct Spacecraft {
 				physcraft.setPositionAndVelocity(transOrbit.planet->pos, norm(transOrbit.planet->pos - transOrbit.lastPos) * calculateV(planets, star, transOrbit, trueAnomaly));
 				wasManeuver1 = true;
 			}
-			//for (int i = 0; i < substep; i++) physcraft.update(t)æ
 			physcraft.update(t * substep)æ
 		}
 		else {

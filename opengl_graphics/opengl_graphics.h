@@ -233,6 +233,13 @@ public:
 
 // ======================== GUI
 
+enum PosMode : uint8_t {
+	leftDown,
+	leftUp = 64,
+	rightDown = 128,
+	rightUp = 192,
+};
+
 class OPENGL_GRAPHICS_API GUIElement {
 protected:
 	object* objPtr;
@@ -242,9 +249,10 @@ protected:
 	bool dyn;
 	virtual void genVerts();
 public:
-	GUIElement(vec2 pos, vec2 size, Texture* texturePtr, vec2 posInTex, vec2 sizeInTex, bool dyn = false, bool genVerts = true);
+	GUIElement(vec2 pos, vec2 size, Texture* texturePtr, vec2 posInTex, vec2 sizeInTex, bool dyn = false, bool genVerts = true, PosMode posMode = leftDown);
 	void enableElement(bool enable = true);
 	void setTexturePosAndSize(vec2 pos, vec2 size);
+	object* getObjectPtr();
 };
 
 class OPENGL_GRAPHICS_API GUIText : public GUIElement {
@@ -252,7 +260,7 @@ protected:
 	std::string text;
 	void genVerts() override;
 public:
-	GUIText(vec2 pos, float size, Texture* texturePtr, std::string text, bool dyn = false);
+	GUIText(vec2 pos, float size, Texture* texturePtr, std::string text, bool dyn = false, PosMode posMode = leftDown);
 	void setText(std::string text);
 };
 

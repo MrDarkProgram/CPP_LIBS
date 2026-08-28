@@ -62,7 +62,7 @@ bool UniversalRender2::removeObject(object* object) {
 std::vector<float> UniversalRender2::collectObjectsToData(drawMode mode, bool alpha) {
 	std::vector<float> data;
 	for (object& object : objects) {
-		if (object.mode == mode && object.enable && object.alpha == alpha) {
+		if ((object.mode & 63) == mode && object.enable && object.alpha == alpha) {
 			mat4 rotate = createRotation(object.rot);
 			mat4 tr = createTranslate(object.pos);
 			mat4 sc = createScale(object.scl);
@@ -87,7 +87,9 @@ std::vector<float> UniversalRender2::collectObjectsToData(drawMode mode, bool al
 					color.z /= 2;
 				}
 				norm = rotate * norm;
-				if ((vertex.data & 128) == 128) pos = { pos.x / Window::getWidth() * 2 - 1, pos.y / Window::getHeight() * 2 + 1, pos.z };
+				if ((vertex.data & 128) == 128) pos = { pos.x / Window::getWidth() * 2 - 1, pos.y / Window::getHeight() * 2 - 1, pos.z };
+				if ((object.mode & PosMode::leftUp) == PosMode::leftUp) pos.y += 2;
+				if ((object.mode & PosMode::rightDown) == PosMode::rightDown) pos.x += 2;
 				float _data[]{ pos.x, pos.y, pos.z, norm.x, norm.y, norm.z, color.x, color.y, color.z, color.w, vertex.tex.x, vertex.tex.y, *(float*)&vertex.data, *(float*)&object.id };
 				data.insert(data.end(), _data, _data + 14);
 			}

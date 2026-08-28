@@ -1,0 +1,8 @@
+{
+	"TextHeight": 20,
+	"CameraMoveSpeed": 100,
+	"CameraSens": 150,
+	"CameraFov": 90,
+	"StarSystemPath": "solar_system.json",
+	"ConsiderPlanet2": false
+}

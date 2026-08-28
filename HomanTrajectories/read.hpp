@@ -84,38 +84,84 @@ struct Planets : public std::vector<PlanetData> {
 	float GlobalSemiMajorAxisModifier;
 };
 
-void generateObjects(const char* path, Planets& objects) {
+int generateObjects(const char* path, Planets& objects) {
 	std::fstream f(path);
-	json data = json::parse(f);
-	auto& planets = data["planets"];
+	if (!f.is_open()) return 1;
+	json data;
+	try
+	{
+		data = json::parse(f);
+		f.close();
 
-	objects.GlobalRadiusModifier = data["GlobalRadiusModifier"];
-	objects.GlobalSemiMajorAxisModifier = data["GlobalSemiMajorAxisModifier"];
-	objects.reserve(planets.size());
-	for (int i = 0; i < planets.size(); i++) {
-		objects.push_back({});
-		if (planets[i].contains("RadiusModifier")) objects[i].RadiusModifier = planets[i]["RadiusModifier"];
-		else objects[i].RadiusModifier = 1;
+		auto& planets = data["planets"];
 
-		objects[i].Name = planets[i]["Name"];
-		objects[i].SemiMajorAxis = planets[i]["SemiMajorAxis"] * objects.GlobalSemiMajorAxisModifier;
-		objects[i].Eccentricity = planets[i]["Eccentricity"];
-		objects[i].SiderealOrbitalPeriod = planets[i]["SiderealOrbitalPeriod"];
-		objects[i].MeanAnomaly = planets[i]["MeanAnomaly"] * 3.1415 / 180;
-		objects[i].Inclination = planets[i]["Inclination"] * 3.1415 / 180;
-		objects[i].LongitudeOfTheAscendingNode = planets[i]["LongitudeOfTheAscendingNode"] * 3.1415 / 180;
-		objects[i].ArgumentOfPeriapsis = planets[i]["ArgumentOfPeriapsis"] * 3.1415 / 180;
-		objects[i].EquatorialRadius = planets[i]["EquatorialRadius"] * objects[i].RadiusModifier * objects.GlobalRadiusModifier;
-		objects[i].PolarRadius = planets[i]["PolarRadius"] * objects[i].RadiusModifier * objects.GlobalRadiusModifier;
-		objects[i].Mass = planets[i]["Mass"];
-		objects[i].SiderealRotationPeriod = planets[i]["SiderealRotationPeriod"];
-		objects[i].AxialTilt = planets[i]["AxialTilt"] * 3.1415 / 180;
-		objects[i].ColorR = planets[i]["colorR"];
-		objects[i].ColorG = planets[i]["colorG"];
-		objects[i].ColorB = planets[i]["colorB"];
-		if (planets[i].contains("RingRadius1") && planets[i].contains("RingRadius2")) {
-			objects[i].RingRadius1 = planets[i]["RingRadius1"];
-			objects[i].RingRadius2 = planets[i]["RingRadius2"];
+		objects.GlobalRadiusModifier = data["GlobalRadiusModifier"];
+		objects.GlobalSemiMajorAxisModifier = data["GlobalSemiMajorAxisModifier"];
+		objects.reserve(planets.size());
+		for (int i = 0; i < planets.size(); i++) {
+			objects.push_back({});
+			if (planets[i].contains("RadiusModifier")) objects[i].RadiusModifier = planets[i]["RadiusModifier"];
+			else objects[i].RadiusModifier = 1;
+
+			objects[i].Name = planets[i]["Name"];
+			objects[i].SemiMajorAxis = planets[i]["SemiMajorAxis"] * objects.GlobalSemiMajorAxisModifier;
+			objects[i].Eccentricity = planets[i]["Eccentricity"];
+			objects[i].SiderealOrbitalPeriod = planets[i]["SiderealOrbitalPeriod"];
+			objects[i].MeanAnomaly = planets[i]["MeanAnomaly"] * 3.1415 / 180;
+			objects[i].Inclination = planets[i]["Inclination"] * 3.1415 / 180;
+			objects[i].LongitudeOfTheAscendingNode = planets[i]["LongitudeOfTheAscendingNode"] * 3.1415 / 180;
+			objects[i].ArgumentOfPeriapsis = planets[i]["ArgumentOfPeriapsis"] * 3.1415 / 180;
+			objects[i].EquatorialRadius = planets[i]["EquatorialRadius"] * objects[i].RadiusModifier * objects.GlobalRadiusModifier;
+			objects[i].PolarRadius = planets[i]["PolarRadius"] * objects[i].RadiusModifier * objects.GlobalRadiusModifier;
+			objects[i].Mass = planets[i]["Mass"];
+			objects[i].SiderealRotationPeriod = planets[i]["SiderealRotationPeriod"];
+			objects[i].AxialTilt = planets[i]["AxialTilt"] * 3.1415 / 180;
+			objects[i].ColorR = planets[i]["colorR"];
+			objects[i].ColorG = planets[i]["colorG"];
+			objects[i].ColorB = planets[i]["colorB"];
+			if (planets[i].contains("RingRadius1") && planets[i].contains("RingRadius2")) {
+				objects[i].RingRadius1 = planets[i]["RingRadius1"];
+				objects[i].RingRadius2 = planets[i]["RingRadius2"];
+			}
 		}
 	}
+	catch (const std::exception&)
+	{
+		return 2;
+	}
+
+	return 0;
+}
+
+
+// настройки
+float textHeight = 20;
+float cameraMoveSpeed = 100;
+float cameraSens = 150;
+float cameraFov = 90;
+std::string starSystemPath = "solar_system.json";
+bool considePlanet2 = false;
+
+int ReadSettings() {
+	std::fstream f("settings.json");
+	if (!f.is_open()) return 1;
+	json data;
+	try
+	{
+		data = json::parse(f);
+		f.close();
+
+		textHeight = data["TextHeight"];
+		cameraMoveSpeed = data["CameraMoveSpeed"];
+		cameraSens = data["CameraSens"];
+		cameraFov = data["CameraFov"];
+		starSystemPath = data["StarSystemPath"];
+		considePlanet2 = data["ConsiderPlanet2"];
+	}
+	catch (const std::exception&)
+	{
+		return 2;
+	}
+
+	return 0;
 }

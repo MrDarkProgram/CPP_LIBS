@@ -149,7 +149,9 @@
 			"AxialTilt": 97.77,
 			"colorR": 0.7,
 			"colorG": 0.85,
-			"colorB": 0.9
+			"colorB": 0.9,
+			"RingRadius1": 1.3,
+			"RingRadius2": 1.5
 		},
 		{
 			"Name": "Neptune",
