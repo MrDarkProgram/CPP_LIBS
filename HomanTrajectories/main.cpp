@@ -220,7 +220,7 @@ void init() {
 }
 
 void scene() {
-	UniversalRender2::reserveObjects(30);
+	UniversalRender2::reserveObjects(40);
 
 	// визуализация 3х базисных осей
 	object basis{};

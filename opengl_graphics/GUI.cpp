@@ -67,7 +67,7 @@ void GUIText::genVerts()
 		}
 		else if (charTable.contains(c)) {
 			vec2 charPos = charTable.at(c);
-		a:	vertexes verts = {
+			vertexes verts = {
 				{vec3{j, k, 0},         {}, {}, {charPos.x * 12 / texW, charPos.y * 18 / texH},               160},
 				{vec3{j, k - 1, 0},     {}, {}, {charPos.x * 12 / texW, (charPos.y * 18 + 16) / texH},        160},
 				{vec3{j + 1, k, 0},     {}, {}, {(charPos.x * 12 + 12) / texW, charPos.y * 18 / texH},        160},
